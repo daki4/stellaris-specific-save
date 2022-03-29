@@ -37,6 +37,7 @@ fn ensure_target_dir(target_dir: &String) {
     }
 }
 
+// copy stuff
 pub fn copy<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<(), std::io::Error> {
     let mut stack = Vec::new();
     stack.push(PathBuf::from(from.as_ref()));
@@ -85,7 +86,7 @@ pub fn copy<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<(), std::i
 fn get_last_modified_directory(path: &String) -> String {
     let mut last_modified_time = SystemTime::UNIX_EPOCH;
     let mut last_modified_path = String::new();
-    for entry in read_dir(path).unwrap() {
+    for entry in read_dir(&path).unwrap() {
         let entry = entry.unwrap();
         let path = entry.path();
         if entry.metadata().unwrap().modified().unwrap() > last_modified_time {
@@ -102,9 +103,21 @@ fn main() {
     let directory_target = get_target_path();
     let target = get_target_path();
     ensure_target_dir(&target);
+    let mut delimeter = "";
+    if cfg!(target_os = "linux") {
+        delimeter = "/";
+    }
+    else if cfg!(target_os = "windows") {
+        delimeter = "\\";
+    }
+
     loop {
         let last_modified_directory = get_last_modified_directory(&directory_saves);
-        match copy(Path::new(&last_modified_directory), Path::new(&directory_target)) {
+        dbg!(&directory_saves, &directory_target, &last_modified_directory);
+        let temp = last_modified_directory.split(delimeter).collect::<Vec<&str>>();
+
+        let new_path = directory_target.clone() + delimeter.clone() + temp[temp.len() - 1].clone();
+        match copy(Path::new(&last_modified_directory), Path::new(&new_path)) {
             Ok(()) => {}
             Err(_e) => println!("failed to copy."),
         }
