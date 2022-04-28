@@ -11,6 +11,12 @@ This program was written in Rust. It can not be ran without being compiled. I ch
 With this come other benefits too. Just make a *`.env`* file, put the target dir there, and all will be good. No real additional setup would be needed.
 
 ## Setup
-Create a *`.env`* file that contains the following
-  - TARGET_DIR="/path/to/save/game/files" - for linux
-  - TARGET_DIR="C:\\path\\to\\save\\game\\files" - for windows
+Rename the `example.env` file to just `.env` and take a peek at how you can configure the different options to your liking.
+
+**The storage path should also be changed**
+
+## Features
+
+You can set a delay as to every how many seconds the program should back files up. **Default value: 0**
+
+You can set every how many years the program should back a save up
