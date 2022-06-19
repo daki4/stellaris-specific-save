@@ -136,6 +136,7 @@ dependencies = [
  "home",
  "log",
  "pretty_env_logger",
+ "regex",
 ]
 
 [[package]]
