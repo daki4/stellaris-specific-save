@@ -1,7 +1,9 @@
-use std::{env, path::Path, fs};
-
+use directories::UserDirs;
 use log::warn;
+use serde::Deserialize;
+use std::{env, fs, path::Path};
 
+#[derive(Debug)]
 pub struct Configuration {
     pub directory_saves: String,
     pub directory_target: String,
@@ -11,24 +13,62 @@ pub struct Configuration {
     pub delimeter: String,
 }
 
+#[derive(Deserialize)]
+struct ReadSettings {
+    pub target_dir: String,
+    pub delay_seconds: u64,
+    pub years_passed: u16,
+}
+
+impl ReadSettings {
+    fn new() -> ReadSettings {
+        // Read file "settings.json" from current directory and parse it into a struct of type ReadSettings
+        let path = Path::new("settings.json");
+        let file = fs::read_to_string(path).unwrap();
+
+        dbg!(&file);
+
+        let settings: ReadSettings = serde_json::from_str(&file).unwrap();
+        settings
+    }
+}
+
 impl Configuration {
     pub fn new() -> Configuration {
-        let a = Configuration {
-            directory_saves: get_path().unwrap(),
-            directory_target: env::var("TARGET_DIR").unwrap(),
-            delay_seconds: env::var("DELAY_SECONDS").unwrap().parse().unwrap(),
-            years_passed: env::var("YEARS_PASSED").unwrap().parse().unwrap(),
-            default_delay_seconds: 5,
-            delimeter: match env::consts::OS {
-                "windows" => "\\".to_string(),
-                "linux" => "/".to_string(),
-                _ => panic!("unsupported OS"),
-            },
+        let delimeter = match env::consts::OS {
+            "windows" => "\\".to_string(),
+            "linux" => "/".to_string(),
+            _ => panic!("unsupported OS"),
         };
-        ensure_target_dir(&a.directory_target.as_str());
-        
-        if a.delay_seconds > 0 && a.years_passed == 0 {
 
+        let saves_path = if let Some(user_dirs) = UserDirs::new() {
+            format!(
+                "{}{}{}{}{}{}{}",
+                user_dirs.document_dir().unwrap().to_string_lossy().to_string(),
+                &delimeter,
+                "Paradox Interactive",
+                &delimeter,
+                "Stellaris",
+                &delimeter,
+                "save games"
+            )
+        } else {
+            warn!("Could not find user directories");
+            "".to_string()
+        };
+
+        let stx = ReadSettings::new();
+        let a = Configuration {
+            directory_saves: saves_path,
+            directory_target: stx.target_dir,
+            delay_seconds: stx.delay_seconds,
+            years_passed: stx.years_passed,
+            default_delay_seconds: 5,
+            delimeter: delimeter,
+        };
+        ensure_target_dir(a.directory_target.as_str());
+
+        if a.delay_seconds > 0 && a.years_passed == 0 {
             warn!("both a year and seconds delay were specified, using seconds delay.");
         }
 
@@ -40,23 +80,6 @@ impl Default for Configuration {
     fn default() -> Self {
         Configuration::new()
     }
-}
-
-/// get stellaris saves path
-#[cfg(target_os = "linux")]
-pub fn get_path() -> Option<String> {
-    let home = home::home_dir()?;
-    let _platform_path = match env::consts::OS {
-        "linux" => "/.local/share/Paradox Interactive/Stellaris/save games",
-        "windows" => "\\Documents\\Paradox Interactive\\Stellaris\\save games",
-        _ => panic!("unsupported OS"),
-    };
-    let path = format!(
-        "{}{}",
-        home.display(),
-        _platform_path
-    );
-    Some(path)
 }
 
 pub fn ensure_target_dir(target_dir: &str) {

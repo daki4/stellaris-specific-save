@@ -2,11 +2,12 @@ pub mod functions;
 pub mod config;
 
 
+
 // function that gets a file path and path delimeter as arguments and returns the file name
 pub fn file_name(path: &String, delimeter: &str) -> String {
     let temp = path.split(delimeter).collect::<Vec<&str>>();
-    let file_name = temp[temp.len() - 1].to_string();
-    file_name
+    
+    temp[temp.len() - 1].to_string()
 }
 
 #[cfg(test)]

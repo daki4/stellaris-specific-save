@@ -11,12 +11,17 @@ This program was written in Rust. It can not be ran without being compiled. I ch
 With this come other benefits too. Just make a *`.env`* file, put the target dir there, and all will be good. No real additional setup would be needed.
 
 ## Setup
-Rename the `example.env` file to just `.env` and take a peek at how you can configure the different options to your liking.
+Unzip the `release.zip` file in the directory you like, and go edit the `settings.json` file. 
+ - You need to change the `target_dir` to reflect the path you want to have your saves located at. 
+ - `delay_seconds` is a setting that if set, will back up every X seconds all the autosaves it can find.
+ - `years_passed` is a setting that will back up the autosaves only EVERY X amount of years. ~~For example: `years_passed` is set at 5, every 5 years, the script will back up an autosave.~~
 
-**The storage path should also be changed**
+**The storage path should be changed before operation, since it has a default value right now.**
 
 ## Features
 
-You can set a delay as to every how many seconds the program should back files up. **Default value: 0**
+You can set a delay as to every how many seconds the program should back files up<br>
+**Default value: 0**
 
-You can set every how many years the program should back a save up
+You can set every how many years the program should back a save up.<br>
+**Default value: 5**

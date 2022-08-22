@@ -34,7 +34,8 @@ pub fn copy<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> io::Result<()> {
         if fs::read_dir(&working_path).is_err() {
             let filename = working_path.file_name().unwrap();
             let dest_path = &dest.join(filename);
-            fs::copy(&from, &dest)?;
+            fs::copy(&from, dest_path)?;
+            // fs::copy(&from, &dest)?;
             debug!("copy: {:?} -> {:?}", &from.as_ref(), &dest_path);
             break;
         }
@@ -67,7 +68,7 @@ pub fn copy<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> io::Result<()> {
 /// check if the file extension of the file is ".sav"
 pub fn check_stellaris_save(filename: &String) -> bool {
     let save_regex = regex::Regex::new(r"\.sav").unwrap();
-    if save_regex.is_match(&filename) {
+    if save_regex.is_match(filename) {
         return true;
     }
     false
@@ -94,11 +95,9 @@ pub fn get_last_modified_file_path(path: &str) -> String {
     let mut last_modified_name = String::new();
     for entry in fs::read_dir(path).unwrap() {
         let entry = entry.unwrap();
-        if check_stellaris_save(&entry.file_name().to_string_lossy().to_string()) {
-            if entry.metadata().unwrap().modified().unwrap() > last_modified_time {
-                last_modified_time = entry.metadata().unwrap().modified().unwrap();
-                last_modified_name = entry.path().to_string_lossy().to_string();
-            }
+        if check_stellaris_save(&entry.file_name().to_string_lossy().to_string()) && entry.metadata().unwrap().modified().unwrap() > last_modified_time {
+            last_modified_time = entry.metadata().unwrap().modified().unwrap();
+            last_modified_name = entry.path().to_string_lossy().to_string();
         }
     }
     last_modified_name

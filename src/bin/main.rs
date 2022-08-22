@@ -10,39 +10,13 @@ use stellaris_specific_save::*;
 fn main() {
     env::set_var("RUST_LOG", "debug");
     pretty_env_logger::init_timed();
-    dotenv::dotenv().ok();
 
     let conf = Configuration::new();
     let mut last_saved_year = 2200u16;
     let year_regex = Regex::new(r"\d{4}").unwrap();
-
-    // dbg!(
-    //     &conf.directory_saves,
-    //     &conf.directory_target,
-    // );
-
+    dbg!(&conf);
     loop {
         let last_modified_directory = get_last_modified_directory(&conf.directory_saves);
-        // if conf.years_passed > 0 {
-        //     let last_mod_file = file_name(&last_modified_directory, &conf.delimeter);
-        //     let save_year_temp = last_mod_file.split('.').collect::<Vec<&str>>()[0];
-        //     let save_year: u16 = match save_year_temp.parse() {
-        //         Ok(year) => year,
-        //         Err(_) => save_year_temp.split('_').collect::<Vec<&str>>()[1]
-        //             .parse()
-        //             .unwrap(),
-        //     };
-        //     debug!(
-        //         "data: last_mod_file: '{}'; save_year: {}; last_saved_year: {}",
-        //         &last_mod_file, &save_year, &last_saved_year,
-        //     );
-        //     if save_year < last_saved_year + conf.years_passed {
-        //         std::thread::sleep(std::time::Duration::from_secs(conf.default_delay_seconds));
-        //         debug!("sleeping, no new-enough files found.");
-        //         continue;
-        //     }
-        //     last_saved_year = save_year;
-        // }
 
         let temp = last_modified_directory
             .split(&conf.delimeter)
